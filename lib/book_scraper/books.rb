@@ -14,7 +14,7 @@ class BookScraper::Books
   end
 
   def gets_page
-    doc = Nokogiri::HTML(open('http://books.toscrape.com/catalogue/category/books_1/page-1.html'))
+    Nokogiri::HTML(open('http://books.toscrape.com/catalogue/category/books_1/page-1.html'))
   end
 
   def scrape_books
@@ -22,7 +22,7 @@ class BookScraper::Books
   end
 
   def book_titles
-    @books.detect.with_index {|book, index| "#{index+1}. #{book}[1]"}
+    @books.detect.with_index {|book, index| puts "#{index+1}. #{book[1]}"}
   end
 
 end
