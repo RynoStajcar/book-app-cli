@@ -1,0 +1,5 @@
+class BookScraper::Summary
+
+
+
+end

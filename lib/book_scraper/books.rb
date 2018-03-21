@@ -1,54 +1,32 @@
 class BookScraper::Books
 
-  attr_accessor :book_info, :books, :current_page
+  attr_accessor :book_page, :books, :subject_page
 
-  @@all = []
-
-  def initialize
-    gets_main_page
+  def initialize(sub)
+    @subject_page = sub
     scrape_books
-    @@all << self
+    book_page
+  end
+
+  def get_page
+    Nokogiri::HTML(open(@subject_page))
   end
 
   def self.all
     @@all
   end
 
-  def gets_main_page
-    @current_page = Nokogiri::HTML(open('http://books.toscrape.com/catalogue/category/books_1/page-1.html'))
-  end
-
-  def next_page
-    new_page = @current_page.css("li.next a").map {|i| i.values.first}
-    part = 'http://books.toscrape.com/catalogue/category/books_1/' + new_page.first
-    @current_page = Nokogiri::HTML(open(part))
-  end
-
-  def previous_page
-    new_page = @current_page.css("li.previous a").collect {|i| i.values.first}
-    part = 'http://books.toscrape.com/catalogue/category/books_1/' + new_page.first
-    @current_page = Nokogiri::HTML(open(part))
-  end
-
   def scrape_books
-    @books = @current_page.css("ol.row h3 a").collect {|book|book.values}
+    @books = get_page.css("ol.row h3 a").collect {|book|book.values.last}
+  end
+
+  def book_page
+    @book_page = get_page.css("ol.row h3 a").collect {|book|"http://books.toscrape.com/catalogue/#{book.values.first[9..-1]}"}
   end
 
   def titles
-    scrape_books
-    @books.detect.with_index {|book, index| puts "#{index+1}. #{book[1]}"}
+    @books.detect.with_index {|book, index| puts "#{index+1}. #{book}"}
   end
 
-  def page_info
-    @current_page.css("li.current").text.strip
-  end
-
-  def change_page(input)
-    if input == "next"
-      self.next_page
-    elsif input == "previous"
-      self.previous_page
-    end
-  end
 
 end
