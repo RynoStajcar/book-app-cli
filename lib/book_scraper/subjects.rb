@@ -19,10 +19,4 @@ class BookScraper::Subjects
     @subject_page = gets_page.css("div.side_categories li ul a").map {|subject|"http://books.toscrape.com/#{subject.values.first}"}
   end
 
-
-  def list_books(num)
-    sub = @subject_page[num]
-    BookScraper::Books.new(sub)
-  end
-
 end
