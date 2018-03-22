@@ -2,50 +2,87 @@
 
 class BookScraper::Cli
 
-  attr_accessor :sub, :book_info
+  attr_accessor :subject, :book_info
 
   def main_menu
-    subject = BookScraper::Subjects.new
+    library = BookScraper::Subjects.new
     puts "Select a subject below!"
     puts ""
     sleep 1
-    subject.subjects.detect.with_index {|subject, index| puts "#{index+1}. #{subject}"}
+    library.list_subjects
     puts ""
     puts "Scroll up and down to view all subjects and select one by typing in the number"
     num = gets.strip.to_i - 1
     puts ""
-    @sub = subject.subject_page[num]
-    book_menu(sub)
+    sub_page = library.subject_page[num]
+    sub = library.subjects[num]
+    @subject = BookScraper::Books.new(sub_page, sub)
+    subject_menu(subject)
   end
 
-  def book_menu(sub = @sub)
-    books = BookScraper::Books.new(sub)
-    books.titles
-    puts ""
-    puts "Select a book or type 'menu' to go back"
-    input = gets.strip
-    if input == "menu"
-      main_menu
-    elsif input.to_i > 0 && input.to_i <= books.books.count
-      @book_info = books.book_page[input.to_i-1]
-      book_details(book_info)
-    else
-      "Input Error"
-      book_menu
+  def subject_menu(subject = @subject)
+    subject.books.each_slice(10).with_index do |books, i|
+      puts ""
+      puts ""
+      puts ""
+      puts "Books in '#{subject.sub_name}': page #{i+1}/#{subject.books.each_slice(10).count}"
+      puts "-----------------"
+      books.map.with_index {|book, index| puts "#{i*10+index+1}. #{book}"}
+        puts ""
+      if books.count == 10
+        puts "Type 'menu' for main menu"
+        puts "Hit enter for page #{i+2}"
+        input = gets.strip
+        if input == 'menu'
+          main_menu
+        elsif input.to_i > 0 && input.to_i <= books.count
+          @book_info = subject.book_page.first[input.to_i-1]
+          book_details(book_info)
+        elsif input
+          next
+        end
+      elsif books.count < 10 && i > 0
+        puts "Type 'menu' for main menu"
+        puts "Hit enter for page 1"
+        input = gets.strip
+          if input == 'menu'
+            main_menu
+          elsif input.to_i > 0 && input.to_i <= books.count
+            @book_info = subject.book_page.first[input.to_i-1]
+            book_details(book_info)
+          elsif input
+            subject_menu
+          end
+      elsif books.count < 10
+        puts "Type 'menu' for main menu"
+        input = gets.strip
+          if input == 'menu'
+            main_menu
+          elsif input.to_i > 0 && input.to_i <= books.count
+            @book_info = subject.book_page.first[input.to_i-1]
+            book_details(book_info)
+          elsif input
+            subject_menu
+          end
+        end
+      end
     end
-  end
 
   def book_details(book_info = @book_info)
     book = BookScraper::Summary.new(book_info)
     puts ""
     puts ""
-    puts "Title: #{book.title}"
+    puts "Title:"
+    puts "----------------"
+    puts "#{book.title}"
     puts ""
-    puts "Summary"
+    puts "Summary:"
     puts "-----------------"
     puts "#{book.summary}"
     puts ""
-    puts "Price: #{book.price}"
+    puts "Production Information:"
+    puts "------------------"
+    puts "#{book.information}"
     puts ""
     puts " 'back' for previous menu"
     puts " 'menu' for main menu"
@@ -53,7 +90,7 @@ class BookScraper::Cli
     if input == 'menu'
       main_menu
     elsif input == 'back'
-      book_menu(sub)
+      subject_menu(subject)
     else
       puts "Input Error"
       sleep 2
