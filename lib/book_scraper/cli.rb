@@ -8,16 +8,46 @@ class BookScraper::Cli
     library = BookScraper::Subjects.new
     puts "Select a subject below!"
     puts ""
-    sleep 1
-    library.list_subjects
-    puts ""
-    puts "Scroll up and down to view all subjects and select one by typing in the number"
-    num = gets.strip.to_i - 1
-    puts ""
-    sub_page = library.subject_page[num]
-    sub = library.subjects[num]
-    @subject = BookScraper::Books.new(sub_page, sub)
-    subject_menu(subject)
+    library.subjects.each_slice(10).with_index do |subjects, i|
+      puts ""
+      puts ""
+      puts ""
+      puts "Subjects: page #{i+1}/#{library.subjects.each_slice(10).count}"
+      puts "-----------------"
+      subjects.map.with_index {|subject, index| puts "#{i*10+index+1}. #{subject}"}
+      puts ""
+      if "#{i+1}" == "#{library.subjects.each_slice(10).count}"
+        puts "Hit enter for page 1"
+        puts "Type 'exit' to leave"
+        input = gets.strip
+        if input == 'exit'
+          break
+        elsif input.to_i > 0 && input.to_i <= library.subjects.count
+          num = input.to_i - 1
+          sub_page = library.subject_page[num]
+          sub = library.subjects[num]
+          @subject = BookScraper::Books.new(sub_page, sub)
+          subject_menu(subject)
+        elsif input
+          main_menu
+        end
+      else
+        puts "Hit enter for page #{i+2}"
+        puts "Type 'exit' to leave"
+        input = gets.strip
+        if input == 'exit'
+          break
+        elsif input.to_i > 0 && input.to_i <= library.subjects.count
+          num = input.to_i - 1
+          sub_page = library.subject_page[num]
+          sub = library.subjects[num]
+          @subject = BookScraper::Books.new(sub_page, sub)
+          subject_menu(subject)
+        elsif input
+          next
+        end
+       end
+    end
   end
 
   def subject_menu(subject = @subject)
