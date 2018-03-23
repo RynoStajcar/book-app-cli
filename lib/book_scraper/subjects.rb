@@ -2,9 +2,17 @@ class BookScraper::Subjects
 
   attr_accessor :subjects, :subject_page
 
+  @@subject_count = 0
+  @@books = 0
+
   def initialize
     scrape_subjects
+    @@subject_count = self.subjects.count
     subject_page
+  end
+
+  def self.count
+    @@subject_count
   end
 
   def gets_page

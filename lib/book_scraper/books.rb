@@ -2,12 +2,19 @@ class BookScraper::Books
 
   attr_accessor :book_page, :books, :subject_page, :sub_name
 
+  @@books = 0
+
   def initialize(sub_page, sub)
     @subject_page = sub_page
     @sub_name = sub
     @books = []
     @book_page = []
     scrape_books
+    @@books =+ self.books.count
+  end
+
+  def self.count
+    @@books
   end
 
   def get_page
