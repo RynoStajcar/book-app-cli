@@ -21,7 +21,7 @@ class BookScraper::Cli
         puts "Type 'exit' to leave"
         input = gets.strip
         if input == 'exit'
-          break
+          abort("Have a great day!!")
         elsif input.to_i > 0 && input.to_i <= library.subjects.count
           num = input.to_i - 1
           sub_page = library.subject_page[num]
@@ -36,7 +36,7 @@ class BookScraper::Cli
         puts "Type 'exit' to leave"
         input = gets.strip
         if input == 'exit'
-          break
+          abort("Have a great day!!")
         elsif input.to_i > 0 && input.to_i <= library.subjects.count
           num = input.to_i - 1
           sub_page = library.subject_page[num]
